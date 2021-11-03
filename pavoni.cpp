@@ -1,10 +1,5 @@
 #include "pavoni.h"
 
-#define SLOPE 0.8972f
-#define OFFSET -0.4486f
-#define MARGIN 0.05f
-#define ALPHA 0.15f
-#define SEND_DELAY 1000
 
 void Pavoni::Init(int adcPin, int relayPin, float maxPressure)
 {
@@ -18,7 +13,14 @@ void Pavoni::Init(int adcPin, int relayPin, float maxPressure)
     pinMode(m_relayPin, OUTPUT);
     digitalWrite(m_relayPin, LOW);
 
-    m_pressure = 0;
+    int initialReading = analogRead(m_adcPin);
+    for (int i = 0; i < RAW_BUFFER_SIZE; i++)
+    {
+        m_rawReadings[i] = initialReading;
+    }
+    m_currentPos = 0;
+
+    m_pressure = initialReading * SLOPE + OFFSET;
     UpdatePressure();
 }
 
@@ -72,10 +74,18 @@ void Pavoni::Off()
 
 void Pavoni::UpdatePressure()
 {
-    float sensorVoltage = (float)(analogRead(m_adcPin)) / 1024.f * 2.0f;
+    m_rawReadings[m_currentPos++] = analogRead(m_adcPin);
+    m_currentPos = m_currentPos % RAW_BUFFER_SIZE;
 
-    float p = sensorVoltage * SLOPE + OFFSET;
-    // IIR-Filter 1. Ordung
+    int avg = 0;
+    for (int i = 0; i < RAW_BUFFER_SIZE; i++)
+    {
+        avg += m_rawReadings[i];
+    }
+    avg = avg / RAW_BUFFER_SIZE;
+
+
+    float p = avg * SLOPE + OFFSET;
     m_pressure = (1.0f - ALPHA) * p + ALPHA * m_pressure;
 }
 
