@@ -7,10 +7,10 @@
 #define SLOPE 0.8972f
 #define OFFSET -0.4486f
 
-#define MARGIN 0.05f
-#define ALPHA 0.005f
+#define MARGIN 0.1f
+#define ALPHA 0.2f
 
-#define RAW_BUFFER_SIZE 10
+#define VOLTAGE_BUFFER_SIZE 20
 
 
 class Pavoni
@@ -22,7 +22,7 @@ private:
     int m_adcPin;
     int m_relayPin;
 
-    int m_rawReadings[RAW_BUFFER_SIZE];
+    float m_voltage[VOLTAGE_BUFFER_SIZE];
     int m_currentPos;
 
     float m_pressure;

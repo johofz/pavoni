@@ -13,10 +13,10 @@ void Pavoni::Init(int adcPin, int relayPin, float maxPressure)
     pinMode(m_relayPin, OUTPUT);
     digitalWrite(m_relayPin, LOW);
 
-    int initialReading = analogRead(m_adcPin);
-    for (int i = 0; i < RAW_BUFFER_SIZE; i++)
+    float initialReading = (float)(analogRead(m_adcPin)) / 1024.0f * 2.0f;
+    for (int i = 0; i < VOLTAGE_BUFFER_SIZE; i++)
     {
-        m_rawReadings[i] = initialReading;
+        m_voltage[i] = initialReading;
     }
     m_currentPos = 0;
 
@@ -74,15 +74,15 @@ void Pavoni::Off()
 
 void Pavoni::UpdatePressure()
 {
-    m_rawReadings[m_currentPos++] = analogRead(m_adcPin);
-    m_currentPos = m_currentPos % RAW_BUFFER_SIZE;
+    m_voltage[m_currentPos++] = (float)(analogRead(m_adcPin)) / 1024.0f * 2.0f;
+    m_currentPos = m_currentPos % VOLTAGE_BUFFER_SIZE;
 
-    int avg = 0;
-    for (int i = 0; i < RAW_BUFFER_SIZE; i++)
+    float avg = 0;
+    for (int i = 0; i < VOLTAGE_BUFFER_SIZE; i++)
     {
-        avg += m_rawReadings[i];
+        avg += m_voltage[i];
     }
-    avg = avg / RAW_BUFFER_SIZE;
+    avg = avg / VOLTAGE_BUFFER_SIZE;
 
 
     float p = avg * SLOPE + OFFSET;
