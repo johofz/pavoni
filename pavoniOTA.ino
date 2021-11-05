@@ -24,6 +24,7 @@ void mqtt_reconnect(void);
 void mqtt_callback(String topic, byte* message, unsigned int length);
 
 void send_pressure(float pressure);
+void send_status(void);
 
 
 Pavoni pavoni;
@@ -65,6 +66,7 @@ void loop()
     {
         nextSend = now + SEND_DELAY_MS;
         send_pressure(pavoni.GetPressure());
+        send_status();
     }
 }
 
@@ -178,10 +180,7 @@ void mqtt_callback(String topic, byte* message, unsigned int length)
     else if (topic == "home/pavoni/maxpressure")
     {
         float temp = messageTemp.toFloat();
-        if (temp >= 1.0f && temp <= 2.0f)
-        {
-            pavoni.SetMaxPressure(temp);
-        }
+        pavoni.SetMaxPressure(temp);
     } 
 }
 
@@ -191,4 +190,32 @@ void send_pressure(float pressure)
     sprintf(msg, "%.2f", pressure);
 
     client.publish("home/pavoni/pressure", msg, strlen(msg));
+}
+
+void send_status(void)
+{    
+    error e = pavoni.GetError();
+    if (e == ERROR_PRESSURE_SENSOR)
+    {
+        client.publish("home/pavoni", "off");
+        delay(1000);
+        char msg[] = "Drucksensor fehlerhaft!";
+        client.publish("home/pavoni/error", msg, strlen(msg));
+        pavoni.Off();
+        while(1);
+    }
+    else if (e == ERROR_OVERPRESSURE)
+    {
+        delay(1000);
+        client.publish("home/pavoni", "off");
+        char msg[] = "Überdruck!";
+        client.publish("home/pavoni/error", msg, strlen(msg));
+        pavoni.Off();
+        while(1);
+    }
+    else if (e == ERROR_NONE)
+    {
+        char msg[] = "OK";
+        client.publish("home/pavoni/error", msg, strlen(msg));
+    }
 }

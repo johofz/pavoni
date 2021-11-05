@@ -4,14 +4,21 @@
 
 #include <Arduino.h>
 
-#define SLOPE 0.8972f
-#define OFFSET -0.4486f
+#define SLOPE 2.757905
+#define OFFSET -0.689476
 
-#define MARGIN 0.1f
-#define ALPHA 0.2f
+#define MARGIN 0.05
+#define ALPHA 0.2
+#define ADC_MAX 1024
 
 #define VOLTAGE_BUFFER_SIZE 20
 
+enum error
+{
+    ERROR_NONE = 0,
+    ERROR_PRESSURE_SENSOR,
+    ERROR_OVERPRESSURE
+};
 
 class Pavoni
 {
@@ -27,6 +34,8 @@ private:
 
     float m_pressure;
     float m_maxPressure;
+
+    error m_error;
 
     void UpdatePressure();
 
@@ -45,6 +54,8 @@ public:
     float GetPressure() const;
     int IsTurnedOn() const;
     int IsHeating() const;
+
+    error GetError() const;
 };
 
 
