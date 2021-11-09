@@ -57,7 +57,7 @@ void loop()
     int now = millis();
 
     if (nextUpdate < now)
-    {  
+    {
         nextUpdate = now + UPDATE_DELAY_MS;
         pavoni.Update();
     }
@@ -81,7 +81,7 @@ void wifi_init(const char* ssid, const char* password)
         Serial.println("Connection Failed! Rebooting...");
         delay(5000);
         ESP.restart();
-    } 
+    }
 }
 
 void ota_init(uint16_t port, const char* name)
@@ -115,7 +115,7 @@ void ota_init(uint16_t port, const char* name)
         });
 
 
-    ArduinoOTA.begin();  
+    ArduinoOTA.begin();
 }
 
 void ota_loop(void)
@@ -181,7 +181,7 @@ void mqtt_callback(String topic, byte* message, unsigned int length)
     {
         float temp = messageTemp.toFloat();
         pavoni.SetMaxPressure(temp);
-    } 
+    }
 }
 
 void send_pressure(float pressure)
@@ -193,7 +193,7 @@ void send_pressure(float pressure)
 }
 
 void send_status(void)
-{    
+{
     error e = pavoni.GetError();
     if (e == ERROR_PRESSURE_SENSOR)
     {
@@ -202,7 +202,7 @@ void send_status(void)
         char msg[] = "Drucksensor fehlerhaft!";
         client.publish("home/pavoni/error", msg, strlen(msg));
         pavoni.Off();
-        while(1);
+        while (1);
     }
     else if (e == ERROR_OVERPRESSURE)
     {
@@ -211,7 +211,7 @@ void send_status(void)
         char msg[] = "Überdruck!";
         client.publish("home/pavoni/error", msg, strlen(msg));
         pavoni.Off();
-        while(1);
+        while (1);
     }
     else if (e == ERROR_NONE)
     {

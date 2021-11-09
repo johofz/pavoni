@@ -74,33 +74,34 @@ void Pavoni::UpdatePressure()
 {
     int newReading = analogRead(m_adcPin);
 
-    if (newReading > ADC_MAX * 0.95)
-    {
-        m_error = ERROR_OVERPRESSURE;
-    }
-    else if (newReading < ADC_MAX * 0.1)
+    if (newReading < ADC_MAX * 0.1f)
     {
         m_error = ERROR_PRESSURE_SENSOR;
     }
-    
+
     m_voltage[m_currentPos++] = (float)(newReading) / 1024.0f;
     m_currentPos = m_currentPos % VOLTAGE_BUFFER_SIZE;
 
     float avg = 0;
     for (int i = 0; i < VOLTAGE_BUFFER_SIZE; i++)
     {
-         avg += m_voltage[i];
+        avg += m_voltage[i];
     }
     avg = avg / VOLTAGE_BUFFER_SIZE;
 
 
     float p = avg * SLOPE + OFFSET;
     m_pressure = (1.0f - ALPHA) * p + ALPHA * m_pressure;
+
+    if (m_pressure > OVERPRESSURE)
+    {
+        m_error = ERROR_OVERPRESSURE;
+    }
 }
 
 void Pavoni::SetMaxPressure(float maxPressure)
 {
-    if (maxPressure >= 1.0f && maxPressure <= 2.0f)
+    if (maxPressure <= 2.0f)
     {
         m_maxPressure = maxPressure;
     }

@@ -4,14 +4,16 @@
 
 #include <Arduino.h>
 
-#define SLOPE 2.757905
-#define OFFSET -0.689476
+#define SLOPE 2.757905f
+#define OFFSET -0.689476f
 
-#define MARGIN 0.05
-#define ALPHA 0.2
+#define MARGIN 0.05f
+#define ALPHA 0.2f
 #define ADC_MAX 1024
 
 #define VOLTAGE_BUFFER_SIZE 20
+
+#define OVERPRESSURE 2.5f
 
 enum error
 {
